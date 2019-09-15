@@ -3,6 +3,7 @@ package org.davidespadini.mockextractor.core;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.FileWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class Parser {
     
     public Parser(String dir) {
 		this.dir = dir;
-		this.outputFile = System.getProperty("java.io.tmpdir") + "mockusages.csv";
+		this.outputFile = System.getProperty("java.io.tmpdir") + "/mockusages.csv";
 	}
     
     @SuppressWarnings("rawtypes")
@@ -34,8 +35,12 @@ public class Parser {
     	
     	String[] srcDirs = FileUtils.getAllDirs(dir);
     	String[] javaFiles = FileUtils.getAllJavaFiles(dir);
-    	
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		for(int i = 0; i< javaFiles.length; i++){
+
+			System.out.println("F:" + javaFiles[i]);
+
+		}
+ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
 		
@@ -50,7 +55,12 @@ public class Parser {
  
 		List<Variable> allVars = store.getVarsMocked();
 		allVars.addAll(store.getVarsNotMocked());
-		
+			for(Variable v : allVars){
+
+				System.out.println("v:" + v.getFilename());
+
+			}			
+
 		saveOnDisk(allVars);
 		return allVars;
 	}
@@ -62,16 +72,18 @@ public class Parser {
   	private void saveOnDisk(List<Variable> vars) {
 		
 		try {
-			PrintWriter ps = new PrintWriter(outputFile);
+			 System.out.println(outputFile);
+			PrintWriter ps = new PrintWriter(new FileWriter(outputFile));
 			ps.println("filename;type;mocked");
 			for(Variable var : vars) {
-				ps.println(var.getFilename() + ";" +
-						   var.getType() + ";" +
+				ps.println(var.getFilename() + "," +
+						   var.getType() + "," +
 						   var.isMocked()
 				);
 			}
 			ps.close();
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+			System.err.println("something failed: " + e.getMessage());
 			System.out.println("Can not write on the output file!");
 		}
 	}

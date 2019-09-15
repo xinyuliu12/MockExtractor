@@ -20,7 +20,7 @@ public class FileUtils {
 		
 		File f = new File(path);
 		if(f.getName().equals(".git")) return;
-		
+	   	// preorder DFS traverse all directories	
 		for(File inside : f.listFiles()) {
 			if(inside.isDirectory()) {
 				String newDir = inside.getAbsolutePath();
